@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student GPA Toolkit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #4f46e5;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .semester-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .result-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .nav-link {
+            color: #64748b !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-link.active {
+            color: var(--primary) !important;
+            transform: scale(1.05);
+        }
+
+        .content-section {
+            scroll-margin-top: 70px;
+            padding: 40px 0;
+        }
+
+        #calculator, #converter {
+            display: none;
+        }
+
+        #calculator.active, #converter.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>GPA Toolkit
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a id="nav-home" class="nav-link active" href="#" onclick="showSection('home', event)">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="nav-calculator" class="nav-link" href="#" onclick="showSection('calculator', event)">CGPA Calculator</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="nav-converter" class="nav-link" href="#" onclick="showSection('converter', event)">CGPA Converter</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Sections -->
+    <div class="container">
+        <!-- Home Section -->
+        <div id="home" class="content-section">
+            <div class="row justify-content-center mt-5">
+                <div class="col-lg-8 text-center">
+                    <div class="tool-card p-5">
+                        <h1 class="mb-4">Welcome to GPA Toolkit</h1>
+                        <p class="lead text-muted mb-4">
+                            Calculate your CGPA and convert it to percentage with university-specific formulas
+                        </p>
+                        <div class="d-grid gap-3 d-md-block">
+                            <button class="btn btn-primary btn-lg px-5" onclick="showSection('calculator', event)">
+                                <i class="fas fa-calculator me-2"></i>CGPA Calculator
+                            </button>
+                            <button class="btn btn-success btn-lg px-5 ms-md-3" onclick="showSection('converter', event)">
+                                <i class="fas fa-percent me-2"></i>Percentage Converter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CGPA Calculator -->
+        <div id="calculator" class="content-section">
+            <div class="tool-card p-4 mt-4">
+                <h2 class="text-center mb-4"><i class="fas fa-calculator me-2"></i>CGPA Calculator</h2>
+                <div id="semesters">
+                    <div class="semester-card">
+                        <button class="remove-btn" onclick="removeSemester(this)">&times;</button>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Semester Credits</label>
+                                <input type="number" class="form-control semester-credits" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">SGPA</label>
+                                <input type="number" step="0.01" class="form-control sgpa" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" onclick="addSemester()">
+                        <i class="fas fa-plus-circle me-2"></i>Add Semester
+                    </button>
+                </div>
+                <div class="text-center mt-5">
+                    <button class="btn btn-primary btn-lg px-5" onclick="calculateCGPA()">
+                        Calculate CGPA
+                    </button>
+                    <div class="mt-4">
+                        <h4 class="text-muted">Your CGPA:</h4>
+                        <div class="result-display" id="cgpaResult">0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CGPA Converter -->
+        <div id="converter" class="content-section">
+            <div class="tool-card p-4 mt-4">
+                <h2 class="text-center mb-4"><i class="fas fa-percent me-2"></i>CGPA Converter</h2>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label class="form-label">Enter CGPA</label>
+                            <input type="number" step="0.01" class="form-control" id="cgpaValue" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Select University</label>
+                            <select class="form-select" id="university">
+                                <option value="9.5">Generic (9.5 multiplier)</option>
+                                <option value="10">VTU (10 multiplier)</option>
+                                <option value="7.4">Mumbai University (7.4 multiplier)</option>
+                                <option value="9.0">Delhi University (9.0 multiplier)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="convertCGPA()">
+                            Convert to Percentage
+                        </button>
+                        <div class="text-center mt-4">
+                            <h4 class="text-muted">Equivalent Percentage:</h4>
+                            <div class="result-display" id="percentageResult">0.00%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation System
+        function showSection(sectionId, event) {
+            if(event) event.preventDefault();
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`nav-${sectionId}`).classList.add('active');
+
+            // Handle section visibility
+            if (sectionId === 'home') {
+                document.getElementById('calculator').classList.remove('active');
+                document.getElementById('converter').classList.remove('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Hide other non-home sections
+                document.querySelectorAll('.content-section:not(#home)').forEach(section => {
+                    section.classList.remove('active');
+                });
+                const targetSection = document.getElementById(sectionId);
+                targetSection.classList.add('active');
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // CGPA Calculator Logic
+        function addSemester() {
+            const template = document.querySelector('.semester-card');
+            const newSemester = template.cloneNode(true);
+            newSemester.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('semesters').appendChild(newSemester);
+        }
+
+        function removeSemester(button) {
+            const semesters = document.querySelectorAll('.semester-card');
+            if(semesters.length > 1) {
+                button.closest('.semester-card').remove();
+            }
+        }
+
+        function calculateCGPA() {
+            const semesters = document.querySelectorAll('.semester-card');
+            let totalPoints = 0;
+            let totalCredits = 0;
+            let isValid = true;
+
+            semesters.forEach(semester => {
+                const credits = parseFloat(semester.querySelector('.semester-credits').value);
+                const sgpa = parseFloat(semester.querySelector('.sgpa').value);
+
+                if (!credits || credits <= 0) {
+                    alert('Please enter valid credits for all semesters');
+                    isValid = false;
+                    return;
+                }
+                if (!sgpa || sgpa < 0) {
+                    alert('Please enter valid SGPA for all semesters');
+                    isValid = false;
+                    return;
+                }
+
+                totalPoints += credits * sgpa;
+                totalCredits += credits;
+            });
+
+            if (isValid && totalCredits > 0) {
+                const cgpa = (totalPoints / totalCredits).toFixed(2);
+                document.getElementById('cgpaResult').textContent = cgpa;
+            }
+        }
+
+        // Percentage Converter Logic
+        function convertCGPA() {
+            const cgpa = parseFloat(document.getElementById('cgpaValue').value);
+            const multiplier = parseFloat(document.getElementById('university').value);
+
+            if (!cgpa || cgpa < 0) {
+                alert('Please enter a valid CGPA');
+                return;
+            }
+
+            const percentage = (cgpa * multiplier).toFixed(2);
+            document.getElementById('percentageResult').textContent = `${percentage}%`;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
